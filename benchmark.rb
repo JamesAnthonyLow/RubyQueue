@@ -28,7 +28,7 @@ class Benchmark
   end
 end
 
-bench = Benchmark.new "Queue:".green, "Array:".red
+bench = Benchmark.new "Queue:", "Array:"
 q = Queue.new
 a = Array.new
 bench.test "INITIALIZE", ->{ Queue.new }, ->{ Array.new }
