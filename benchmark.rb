@@ -2,12 +2,22 @@ require 'colorize'
 require_relative 'queue'
 
 class Benchmark
-  def initialize teststr
-    @teststr = teststr
+  def initialize first, second
+    @firststr = first
+    @secondstr = second
   end
-  def timer
-    time = t { yield } 
-    "#{@teststr} #{time}"
+  def test testname, first, second 
+    puts
+    puts testname
+    puts timer @firststr, first
+    puts timer @secondstr, second
+    puts
+    puts "===================="
+    puts "===================="
+  end
+  def timer str, bloc
+    time = t { bloc.call } 
+    "#{str} #{time}"
   end
   private
   def t
@@ -18,23 +28,13 @@ class Benchmark
   end
 end
 
-queue = Benchmark.new "Queue:".green
-array = Benchmark.new "Array:".red
-puts "INITIALIZE"
-puts queue.timer { Queue.new }
-puts
-puts array.timer { Array.new }
-puts
-puts "===================="
-puts "===================="
-puts
-puts "#enqueue vs #push"
+bench = Benchmark.new "Queue:".green, "Array:".red
 q = Queue.new
 a = Array.new
-puts queue.timer { q.enqueue "j" }
-puts array.timer { a.push "j" }
-puts
-puts "===================="
-puts "===================="
-puts
-
+bench.test "INITIALIZE", ->{ Queue.new }, ->{ Array.new }
+bench.test "#enqueue vs #push", ->{ q.enqueue "j" }, ->{ a.push "j" }
+bench.test "30 times #enqueue vs #push", ->{ 30.times { q.enqueue "j" }}, ->{ 30.times { a.push "j" }}
+bench.test "100 times #enqueue vs #push", ->{ 100.times { q.enqueue "j" }}, ->{ 100.times { a.push "j" }}
+bench.test "#dequeue vs #unshift", ->{ q.dequeue }, ->{ a.unshift }
+bench.test "30 times #dequeue vs #unshift", ->{ 30.times { q.dequeue }}, ->{ 30.times { a.unshift }}
+bench.test "100 times #dequeue vs #unshift", ->{ 100.times { q.dequeue }}, ->{ 100.times { a.unshift }}
